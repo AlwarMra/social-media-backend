@@ -32,7 +32,6 @@ authRouter.post('/register', (req, res) => {
 authRouter.get('/login', (req, res) => {
   User.findOne({ email: req.body.email })
     .then(user => {
-      console.log(user)
       if (user && bcrypt.compareSync(req.body.password, user.password)) {
         res.status(200).json(user)
         return

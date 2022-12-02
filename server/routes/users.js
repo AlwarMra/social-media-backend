@@ -5,7 +5,6 @@ const userRouter = express.Router()
 
 userRouter.get('/', (req, res) => {})
 
-// update user
 userRouter.put('/:id', (req, res) => {
   const { id } = req.params
 
@@ -28,7 +27,7 @@ userRouter.put('/:id', (req, res) => {
     })
   }
 })
-// delete user
+
 userRouter.delete('/:id', (req, res) => {
   const { id } = req.params
   if (req.body.id === id || req.body.isAdmin) {
@@ -48,7 +47,7 @@ userRouter.delete('/:id', (req, res) => {
     })
   }
 })
-// get user
+
 userRouter.get('/:id', (req, res) => {
   User.findById(req.params.id)
     .lean()
@@ -62,6 +61,46 @@ userRouter.get('/:id', (req, res) => {
 })
 
 // follow
+userRouter.put('/:id/follow', async (req, res) => {
+  if (req.body.id === req.params.id) {
+    res.status(403).send({ error: true, message: 'You cannot follow yourself' })
+    return
+  }
+  try {
+    const user = await User.findById(req.params.id)
+    const currentUser = await User.findById(req.body.id)
+    if (!user.followers.includes(req.body.userId)) {
+      await user.updateOne({ $push: { followers: req.body.userId } })
+      await currentUser.updateOne({ $push: { followings: req.params.id } })
+      res
+        .status(200)
+        .send({ followed: true, message: 'You followed a new user' })
+      return
+    }
+  } catch (error) {
+    res.status(500).json(error)
+  }
+})
+
 // unfollow
+userRouter.put('/:id/unfollow', async (req, res) => {
+  if (req.body.id === req.params.id) {
+    res.status(403).send({ error: true, message: 'You cannot follow yourself' })
+    return
+  }
+  try {
+    const user = await User.findById(req.params.id)
+    const currentUser = await User.findById(req.body.id)
+    if (user.followers.includes(req.body.userId)) {
+      await user.updateOne({ $pull: { followers: req.body.userId } })
+      await currentUser.updateOne({ $pull: { followings: req.params.id } })
+      res
+        .status(200)
+        .send({ unfollowed: true, message: 'You unfollowed a user' })
+    }
+  } catch (error) {
+    res.status(500).json(error)
+  }
+})
 
 export default userRouter
