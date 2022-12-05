@@ -3,7 +3,16 @@ import User from '../Model/User.js'
 
 const userRouter = express.Router()
 
-userRouter.get('/', (req, res) => {})
+userRouter.get('/:id', (req, res) => {
+  const { id } = req.params
+  User.findById(id)
+    .then(user => {
+      res.status(200).json(user)
+    })
+    .catch(error => {
+      res.status(500).json(error)
+    })
+})
 
 userRouter.put('/:id', (req, res) => {
   const { id } = req.params

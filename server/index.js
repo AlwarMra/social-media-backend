@@ -5,6 +5,7 @@ import morgan from 'morgan'
 import dotenv from 'dotenv'
 import userRouter from './routes/users.js'
 import authRouter from './routes/auth.js'
+import postRouter from './routes/posts.js'
 
 dotenv.config()
 const app = express()
@@ -33,6 +34,7 @@ app.use(morgan('common'))
 // Routes
 app.use('/api/auth', authRouter)
 app.use('/api/users', userRouter)
+app.use('/api/posts', postRouter)
 
 app.listen(8800, () => {
   console.log('Server listening on port 8800!')
